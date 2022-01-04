@@ -9,6 +9,7 @@ import java.util.Random;
  * is created!
  */
 public strictfp class RobotPlayer {
+    static RobotController rc;
 
     /**
      * We will use this variable to count the number of turns this robot has been alive.
@@ -52,20 +53,24 @@ public strictfp class RobotPlayer {
         // Hello world! Standard output is very useful for debugging.
         // Everything you say here will be directly viewable in your terminal when you run a match!
         System.out.println("I'm a " + rc.getType() + " and I just got created! I have health " + rc.getHealth());
+        RobotPlayer.rc = rc;
+
+        Archon archon = null;
+        Miner miner = null;
+        Soldier soldier = null;
+
+        switch (rc.getType()) {
+            case ARCHON:     archon = new Archon(); break;
+            case MINER:      miner = new Miner(); break;
+            case SOLDIER:    soldier = new Soldier(); break;
+            case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
+            case WATCHTOWER: // You might want to give them a try!
+            case BUILDER:
+            case SAGE:       break;
+        }
 
         // You can also use indicators to save debug notes in replays.
         rc.setIndicatorString("Hello world!");
-
-        if (rc.getType() == RobotType.MINER) {
-            Team myTeam = rc.getTeam();
-            RobotInfo[] robots = rc.senseNearbyRobots(2, myTeam);
-            for (RobotInfo robot : robots) {
-                if (robot.type == RobotType.ARCHON) {
-                    MapLocation archonLocation = robot.getLocation();
-                    minerDirection = archonLocation.directionTo(rc.getLocation());
-                }
-            }
-        }
 
         while (true) {
             // This code runs during the entire lifespan of the robot, which is why it is in an infinite
@@ -82,9 +87,9 @@ public strictfp class RobotPlayer {
                 // use different strategies on different robots. If you wish, you are free to rewrite
                 // this into a different control structure!
                 switch (rc.getType()) {
-                    case ARCHON:     runArchon(rc); break;
-                    case MINER:      runMiner(rc); break;
-                    case SOLDIER:    runSoldier(rc); break;
+                    case ARCHON:     archon.runArchon(); break;
+                    case MINER:      miner.runMiner(); break;
+                    case SOLDIER:    break;
                     case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
                     case WATCHTOWER: // You might want to give them a try!
                     case BUILDER:
@@ -114,112 +119,4 @@ public strictfp class RobotPlayer {
         // Your code should never reach here (unless it's intentional)! Self-destruction imminent...
     }
 
-    /**
-     * Run a single turn for an Archon.
-     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
-     */
-    static void runArchon(RobotController rc) throws GameActionException {
-        // Pick a direction to build in.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        // Let's try to build a miner.
-        rc.setIndicatorString("Trying to build a miner");
-        if (rc.canBuildRobot(RobotType.MINER, dir)) {
-            rc.buildRobot(RobotType.MINER, dir);
-        }
-        /*
-        if (rng.nextBoolean()) {
-            // Let's try to build a miner.
-            rc.setIndicatorString("Trying to build a miner");
-            if (rc.canBuildRobot(RobotType.MINER, dir)) {
-                rc.buildRobot(RobotType.MINER, dir);
-            }
-        } else {
-            // Let's try to build a soldier.
-            rc.setIndicatorString("Trying to build a soldier");
-            if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                rc.buildRobot(RobotType.SOLDIER, dir);
-            }
-        }
-        */
-    }
-
-    /**
-     * Run a single turn for a Miner.
-     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
-     */
-    static void runMiner(RobotController rc) throws GameActionException {
-        // Try to mine on squares around us.
-        MapLocation me = rc.getLocation();
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
-                // Notice that the Miner's action cooldown is very low.
-                // You can mine multiple times per turn!
-                while (rc.canMineGold(mineLocation)) {
-                    rc.mineGold(mineLocation);
-                }
-                while (rc.canMineLead(mineLocation)) {
-                    rc.mineLead(mineLocation);
-                }
-            }
-        }
-
-        // Move in assigned direction
-        if (rc.isMovementReady()) {
-            MapLocation moveLocation = rc.getLocation().add(minerDirection);
-            if (rc.onTheMap(moveLocation) == false) {
-                Direction[] cardinalDirections = Direction.cardinalDirections();
-                boolean isCardinalDirection = false;
-                for (Direction dir : cardinalDirections) {
-                    if (minerDirection == dir) {
-                        isCardinalDirection = true;
-                    }
-                }
-                if (isCardinalDirection) {
-                    minerDirection = minerDirection.opposite().rotateRight();
-                } else {
-                    if (rc.onTheMap(rc.getLocation().add(minerDirection.rotateRight().rotateRight()))) {
-                        minerDirection = minerDirection.rotateRight().rotateRight();
-                    } else if (rc.onTheMap(rc.getLocation().add(minerDirection.rotateLeft().rotateLeft()))) {
-                        minerDirection = minerDirection.rotateLeft().rotateLeft();
-                    } else {
-                        minerDirection = minerDirection.opposite();
-                    }
-                }
-            }
-            if (rc.canMove(minerDirection)) {
-                rc.move(minerDirection);
-            } else {
-                for (Direction dir : directions) {
-                    if (rc.canMove(dir)) {
-                        rc.move(dir);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Run a single turn for a Soldier.
-     * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
-     */
-    static void runSoldier(RobotController rc) throws GameActionException {
-        // Try to attack someone
-        int radius = rc.getType().actionRadiusSquared;
-        Team opponent = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-        if (enemies.length > 0) {
-            MapLocation toAttack = enemies[0].location;
-            if (rc.canAttack(toAttack)) {
-                rc.attack(toAttack);
-            }
-        }
-
-        // Also try to move randomly.
-        Direction dir = directions[rng.nextInt(directions.length)];
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-            System.out.println("I moved!");
-        }
-    }
 }
