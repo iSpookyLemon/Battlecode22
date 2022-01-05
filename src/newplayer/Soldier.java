@@ -10,6 +10,7 @@ public class Soldier extends RobotPlayer{
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     void runSoldier() throws GameActionException {
+
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();

@@ -58,6 +58,7 @@ public strictfp class RobotPlayer {
         Archon archon = null;
         Miner miner = null;
         Soldier soldier = null;
+        Builder builder = null;
 
         switch (rc.getType()) {
             case ARCHON:     archon = new Archon(); break;
@@ -65,7 +66,7 @@ public strictfp class RobotPlayer {
             case SOLDIER:    soldier = new Soldier(); break;
             case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
             case WATCHTOWER: // You might want to give them a try!
-            case BUILDER:
+            case BUILDER:    builder = new Builder(); break;
             case SAGE:       break;
         }
 
@@ -89,10 +90,10 @@ public strictfp class RobotPlayer {
                 switch (rc.getType()) {
                     case ARCHON:     archon.runArchon(); break;
                     case MINER:      miner.runMiner(); break;
-                    case SOLDIER:    break;
+                    case SOLDIER:    soldier.runSoldier(); break;
                     case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
                     case WATCHTOWER: // You might want to give them a try!
-                    case BUILDER:
+                    case BUILDER:    builder.runBuilder(); break;
                     case SAGE:       break;
                 }
             } catch (GameActionException e) {
