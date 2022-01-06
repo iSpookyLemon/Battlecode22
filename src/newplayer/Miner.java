@@ -18,6 +18,17 @@ public class Miner extends RobotPlayer {
      */
     void runMiner() throws GameActionException {
         // Try to mine on squares around us.
+
+        int radius = rc.getType().actionRadiusSquared;
+        Team opponent = rc.getTeam().opponent();
+        RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+        for (RobotInfo robot : enemies) {
+            if (robot.getType() == RobotType.ARCHON) {
+                rc.writeSharedArray(0, locationToInt(robot.getLocation()));
+                rc.writeSharedArray(1, 1);
+            }
+        }
+
         MapLocation me = rc.getLocation();
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {

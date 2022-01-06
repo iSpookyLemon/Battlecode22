@@ -15,17 +15,17 @@ public class Archon extends RobotPlayer {
     void runArchon() throws GameActionException {
         if (turnCount % 50 == 0) {
             buildType = RobotType.BUILDER;
+        } else {
+            buildType = RobotType.MINER;
+        }
+        if (turnCount > 1000) {
+            buildType = RobotType.SOLDIER;
         }
         // Pick a direction to build in.
         Direction dir = directions[rng.nextInt(directions.length)];
         // Let's try to build a miner.
-        if (rc.isActionReady()) {
-            if (buildType == RobotType.MINER && rc.canBuildRobot(RobotType.MINER, dir)) {
-                rc.buildRobot(RobotType.MINER, dir);
-            } else if (buildType == RobotType.BUILDER && rc.canBuildRobot(RobotType.BUILDER, dir)) {
-                rc.buildRobot(RobotType.BUILDER, dir);
-                buildType = RobotType.MINER;
-            }
+        if (rc.canBuildRobot(buildType, dir)) {
+            rc.buildRobot(buildType, dir);
         }
         /*
         if (rng.nextBoolean()) {
