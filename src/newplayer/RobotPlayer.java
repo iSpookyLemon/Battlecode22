@@ -134,4 +134,11 @@ public strictfp class RobotPlayer {
         return archonLocation;
     }
 
+    static int locationToInt(MapLocation loc) {
+        return loc.x + loc.y * 60;
+    }
+
+    static MapLocation intToLocation(int n) {
+        return new MapLocation(n % 60, n / 60);
+    }
 }

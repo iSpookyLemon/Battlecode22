@@ -2,6 +2,9 @@ package newplayer;
 import battlecode.common.*;
 
 public class Soldier extends RobotPlayer{
+
+    static MapLocation enemyArchonLocation;
+
     Soldier() throws GameActionException {
 
     }
@@ -10,6 +13,11 @@ public class Soldier extends RobotPlayer{
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     void runSoldier() throws GameActionException {
+
+        if (rc.readSharedArray(1) == 1) {
+            int n = rc.readSharedArray(0);
+            enemyArchonLocation = intToLocation(n);
+        }
 
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
@@ -23,7 +31,7 @@ public class Soldier extends RobotPlayer{
         }
 
         // Also try to move randomly.
-        Direction dir = directions[rng.nextInt(directions.length)];
+        Direction dir = rc.getLocation().directionTo(enemyArchonLocation);
         if (rc.canMove(dir)) {
             rc.move(dir);
             System.out.println("I moved!");
