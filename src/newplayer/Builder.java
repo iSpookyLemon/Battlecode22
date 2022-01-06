@@ -6,19 +6,22 @@ public class Builder extends RobotPlayer{
     static boolean hasBuiltWatchtower = false;
     static MapLocation watchtowerLocation;
     static RobotInfo watchtowerInfo;
-    static boolean moveMode = false;
+    static boolean moveMode = true;
+    static MapLocation parentArchonLocation;
 
     Builder() throws GameActionException {
-
+        parentArchonLocation = getParentArchonLocation();
     }
     void runBuilder() throws GameActionException {
-        if (hasBuiltWatchtower == false && rc.isActionReady()) {
+
+        if (hasBuiltWatchtower == false && rc.isActionReady() && rc.getLocation().distanceSquaredTo(parentArchonLocation) > 36) {
             for (Direction dir : directions) {
                 if (rc.canBuildRobot(RobotType.WATCHTOWER, dir)) {
                     rc.buildRobot(RobotType.WATCHTOWER, dir);
                     hasBuiltWatchtower = true;
                     watchtowerLocation = rc.getLocation().add(dir);
                     watchtowerInfo = rc.senseRobotAtLocation(watchtowerLocation);
+                    moveMode = false;
                 }
             }
         }
