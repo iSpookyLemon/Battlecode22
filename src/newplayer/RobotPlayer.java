@@ -122,4 +122,16 @@ public strictfp class RobotPlayer {
         // Your code should never reach here (unless it's intentional)! Self-destruction imminent...
     }
 
+    static MapLocation getParentArchonLocation() throws GameActionException {
+        Team myTeam = rc.getTeam();
+        RobotInfo[] robots = rc.senseNearbyRobots(2, myTeam);
+        MapLocation archonLocation = null;
+        for (RobotInfo robot : robots) {
+            if (robot.type == RobotType.ARCHON) {
+                archonLocation = robot.getLocation();
+            }
+        }
+        return archonLocation;
+    }
+
 }
