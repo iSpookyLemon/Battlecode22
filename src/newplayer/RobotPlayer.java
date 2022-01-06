@@ -59,17 +59,19 @@ public strictfp class RobotPlayer {
         Archon archon = null;
         Miner miner = null;
         Soldier soldier = null;
+        Laboratory laboratory = null;
         Watchtower watchtower = null;
         Builder builder = null;
+        Sage sage = null;
 
         switch (rc.getType()) {
             case ARCHON:     archon = new Archon(); break;
             case MINER:      miner = new Miner(); break;
             case SOLDIER:    soldier = new Soldier(); break;
-            case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
+            case LABORATORY: laboratory = new Laboratory(); break;
             case WATCHTOWER: watchtower = new Watchtower(); break;// You might want to give them a try!
             case BUILDER:    builder = new Builder(); break;
-            case SAGE:       break;
+            case SAGE:       sage = new Sage(); break;
         }
 
         // You can also use indicators to save debug notes in replays.
@@ -93,10 +95,10 @@ public strictfp class RobotPlayer {
                     case ARCHON:     archon.runArchon(); break;
                     case MINER:      miner.runMiner(); break;
                     case SOLDIER:    soldier.runSoldier(); break;
-                    case LABORATORY: // Examplefuncsplayer doesn't use any of these robot types below.
+                    case LABORATORY: laboratory.runLaboratory(); break;
                     case WATCHTOWER: watchtower.runWatchtower(); break;
                     case BUILDER:    builder.runBuilder(); break;
-                    case SAGE:       break;
+                    case SAGE:       sage.runSage(); break;
                 }
             } catch (GameActionException e) {
                 // Oh no! It looks like we did something illegal in the Battlecode world. You should
