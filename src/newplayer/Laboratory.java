@@ -6,6 +6,8 @@ public class Laboratory extends RobotPlayer {
 
     }
     void runLaboratory() throws GameActionException {
-
+        if (rc.canTransmute()) {
+            rc.transmute();
+        }
     }
 }
