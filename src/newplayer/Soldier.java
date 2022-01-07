@@ -3,7 +3,7 @@ import battlecode.common.*;
 
 public class Soldier extends RobotPlayer{
 
-    static MapLocation enemyArchonLocation;
+    static MapLocation enemyArchonLocation = null;
 
     Soldier() throws GameActionException {
 
@@ -31,10 +31,8 @@ public class Soldier extends RobotPlayer{
         }
 
         // Also try to move randomly.
-        Direction dir = rc.getLocation().directionTo(enemyArchonLocation);
-        if (rc.canMove(dir)) {
-            rc.move(dir);
-            System.out.println("I moved!");
+        if (enemyArchonLocation != null) {
+            moveToLocation(enemyArchonLocation);
         }
     }
 }

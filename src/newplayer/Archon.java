@@ -18,8 +18,12 @@ public class Archon extends RobotPlayer {
         } else {
             buildType = RobotType.MINER;
         }
-        if (turnCount > 1000) {
-            buildType = RobotType.SOLDIER;
+        if (turnCount > 500) {
+            if (turnCount % 50 == 0) {
+                buildType = RobotType.SAGE;
+            } else {
+                buildType = RobotType.SOLDIER;
+            }
         }
         // Pick a direction to build in.
         Direction dir = directions[rng.nextInt(directions.length)];

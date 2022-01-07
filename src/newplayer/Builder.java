@@ -4,8 +4,9 @@ import battlecode.common.*;
 public class Builder extends RobotPlayer{
 
     static boolean hasBuiltWatchtower = false;
-    static MapLocation watchtowerLocation;
-    static RobotInfo watchtowerInfo;
+    static boolean hasBuiltLaboratory = false;
+    static MapLocation buildingLocation;
+    static RobotInfo buildingInfo;
     static boolean moveMode = true;
     static MapLocation parentArchonLocation;
 
@@ -14,23 +15,39 @@ public class Builder extends RobotPlayer{
     }
     void runBuilder() throws GameActionException {
 
-        if (hasBuiltWatchtower == false && rc.isActionReady() && rc.getLocation().distanceSquaredTo(parentArchonLocation) > 36) {
-            for (Direction dir : directions) {
-                if (rc.canBuildRobot(RobotType.WATCHTOWER, dir)) {
-                    rc.buildRobot(RobotType.WATCHTOWER, dir);
-                    hasBuiltWatchtower = true;
-                    watchtowerLocation = rc.getLocation().add(dir);
-                    watchtowerInfo = rc.senseRobotAtLocation(watchtowerLocation);
-                    moveMode = false;
+        if (rc.isActionReady()) {
+            if (hasBuiltWatchtower == false) {
+                if (rc.getLocation().distanceSquaredTo(parentArchonLocation) > 36) {
+                    for (Direction dir : directions) {
+                        if (rc.canBuildRobot(RobotType.WATCHTOWER, dir)) {
+                            rc.buildRobot(RobotType.WATCHTOWER, dir);
+                            hasBuiltWatchtower = true;
+                            buildingLocation = rc.getLocation().add(dir);
+                            buildingInfo = rc.senseRobotAtLocation(buildingLocation);
+                            moveMode = false;
+                        }
+                    }
+                }
+            } else if (hasBuiltLaboratory == false) {
+                if (rc.getLocation().distanceSquaredTo(parentArchonLocation) > 100) {
+                    for (Direction dir : directions) {
+                        if (rc.canBuildRobot(RobotType.LABORATORY, dir)) {
+                            rc.buildRobot(RobotType.LABORATORY, dir);
+                            hasBuiltLaboratory = true;
+                            buildingLocation = rc.getLocation().add(dir);
+                            buildingInfo = rc.senseRobotAtLocation(buildingLocation);
+                            moveMode = false;
+                        }
+                    }
                 }
             }
         }
 
         if (moveMode == false) {
-            watchtowerInfo = rc.senseRobotAtLocation(watchtowerLocation);
-            if (watchtowerInfo != null && watchtowerInfo.getMode() == RobotMode.PROTOTYPE) {
-                if (rc.canRepair(watchtowerLocation)) {
-                    rc.repair(watchtowerLocation);
+            buildingInfo = rc.senseRobotAtLocation(buildingLocation);
+            if (buildingInfo != null && buildingInfo.getMode() == RobotMode.PROTOTYPE) {
+                if (rc.canRepair(buildingLocation)) {
+                    rc.repair(buildingLocation);
                 }
             } else {
                 moveMode = true;
@@ -39,7 +56,6 @@ public class Builder extends RobotPlayer{
             Direction dir = directions[rng.nextInt(directions.length)];
             if (rc.canMove(dir)) {
                 rc.move(dir);
-                System.out.println("I moved!");
             }
         }
     }

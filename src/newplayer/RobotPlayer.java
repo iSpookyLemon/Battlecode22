@@ -53,7 +53,7 @@ public strictfp class RobotPlayer {
 
         // Hello world! Standard output is very useful for debugging.
         // Everything you say here will be directly viewable in your terminal when you run a match!
-        System.out.println("I'm a " + rc.getType() + " and I just got created! I have health " + rc.getHealth());
+        //System.out.println("I'm a " + rc.getType() + " and I just got created! I have health " + rc.getHealth());
         RobotPlayer.rc = rc;
 
         Archon archon = null;
@@ -83,7 +83,6 @@ public strictfp class RobotPlayer {
             // loop, we call Clock.yield(), signifying that we've done everything we want to do.
 
             turnCount += 1;  // We have now been alive for one more turn!
-            System.out.println("Age: " + turnCount + "; Location: " + rc.getLocation());
 
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode.
             try {
@@ -142,5 +141,21 @@ public strictfp class RobotPlayer {
 
     static MapLocation intToLocation(int n) {
         return new MapLocation(n % 60, n / 60);
+    }
+
+    static void moveToLocation(MapLocation loc) throws GameActionException {
+        Direction dir = rc.getLocation().directionTo(loc);
+        Direction leftDirection = dir;
+        Direction rightDirection = dir;
+        for (int i = 0; i < 5; i++) {
+            if (rc.canMove(leftDirection)) {
+                rc.move(leftDirection);
+            }
+            if (rc.canMove(rightDirection)) {
+                rc.move(rightDirection);
+            }
+            leftDirection = leftDirection.rotateLeft();
+            rightDirection = rightDirection.rotateRight();
+        }
     }
 }
