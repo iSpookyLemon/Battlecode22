@@ -5,6 +5,7 @@ public class Archon extends RobotPlayer {
 
     static RobotType buildType;
     static int robotsBuilt = 0;
+    static int soldierDelay = 4;
 
     Archon() throws GameActionException {
 
@@ -15,8 +16,18 @@ public class Archon extends RobotPlayer {
      */
     void runArchon() throws GameActionException {
 
+        if (rc.getTeamLeadAmount(rc.getTeam()) < 250) {
+            soldierDelay = 4;
+        } else if (rc.getTeamLeadAmount(rc.getTeam()) < 500) {
+            soldierDelay = 3;
+        } else if (rc.getTeamLeadAmount(rc.getTeam()) < 1000) {
+            soldierDelay = 2;
+        } else {
+            soldierDelay = 1;
+        }
+
         Direction dir = directions[rng.nextInt(directions.length)];
-        if (robotsBuilt % 4 == 0) {
+        if (robotsBuilt % soldierDelay == 0) {
             buildType = RobotType.SOLDIER;
         } else {
             buildType = RobotType.MINER;
