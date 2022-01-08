@@ -1,16 +1,14 @@
 package newplayer;
 import battlecode.common.*;
+import java.util.ArrayList;
 
 public class Miner extends RobotPlayer {
+
+    static MapLocation mineLocation;
+    static Direction minerDirection;
+
     Miner() throws GameActionException {
-        Team myTeam = rc.getTeam();
-        RobotInfo[] robots = rc.senseNearbyRobots(2, myTeam);
-        for (RobotInfo robot : robots) {
-            if (robot.type == RobotType.ARCHON) {
-                MapLocation archonLocation = robot.getLocation();
-                minerDirection = archonLocation.directionTo(rc.getLocation());
-            }
-        }
+        minerDirection = getSpawnDirection();
     }
     /**
      * Run a single turn for a Miner.
@@ -18,62 +16,46 @@ public class Miner extends RobotPlayer {
      */
     void runMiner() throws GameActionException {
         // Try to mine on squares around us.
-
-        int radius = rc.getType().actionRadiusSquared;
-        Team opponent = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-        for (RobotInfo robot : enemies) {
-            if (robot.getType() == RobotType.ARCHON) {
-                rc.writeSharedArray(0, locationToInt(robot.getLocation()));
-                rc.writeSharedArray(1, 1);
-            }
-        }
+        senseEnemyArchon();
 
         MapLocation me = rc.getLocation();
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                MapLocation mineLocation = new MapLocation(me.x + dx, me.y + dy);
-                // Notice that the Miner's action cooldown is very low.
-                // You can mine multiple times per turn!
-                while (rc.canMineGold(mineLocation)) {
-                    rc.mineGold(mineLocation);
+        ArrayList<Integer> seenLead = new ArrayList<Integer>();
+        ArrayList<Integer> mineLocations = new ArrayList<Integer>();
+
+        for (MapLocation loc : rc.getAllLocationsWithinRadiusSquared(me, rc.getType().visionRadiusSquared)) {
+            int n = locationToInt(loc);
+            int leadAmount = rc.senseLead(loc);
+            if (leadAmount > 1) {
+                if (me.distanceSquaredTo(loc) <= 2) {
+                    mineLocations.add(n);
                 }
-                while (rc.canMineLead(mineLocation)) {
-                    rc.mineLead(mineLocation);
-                }
+                seenLead.add(n);
             }
         }
 
-        // Move in assigned direction
-        if (rc.isMovementReady()) {
-            MapLocation moveLocation = rc.getLocation().add(minerDirection);
-            if (rc.onTheMap(moveLocation) == false) {
-                Direction[] cardinalDirections = Direction.cardinalDirections();
-                boolean isCardinalDirection = false;
-                for (Direction dir : cardinalDirections) {
-                    if (minerDirection == dir) {
-                        isCardinalDirection = true;
-                    }
-                }
-                if (isCardinalDirection) {
-                    minerDirection = minerDirection.opposite().rotateRight();
-                } else {
-                    if (rc.onTheMap(rc.getLocation().add(minerDirection.rotateRight().rotateRight()))) {
-                        minerDirection = minerDirection.rotateRight().rotateRight();
-                    } else if (rc.onTheMap(rc.getLocation().add(minerDirection.rotateLeft().rotateLeft()))) {
-                        minerDirection = minerDirection.rotateLeft().rotateLeft();
-                    } else {
-                        minerDirection = minerDirection.opposite();
-                    }
-                }
+        for (int n : mineLocations) {
+            MapLocation mineLocation = intToLocation(n);
+            while (rc.canMineGold(mineLocation)) {
+                rc.mineGold(mineLocation);
             }
-            if (rc.canMove(minerDirection)) {
-                rc.move(minerDirection);
+            int leadAmount = rc.senseLead(mineLocation);
+            while (rc.canMineLead(mineLocation) && leadAmount > 1) {
+                rc.mineLead(mineLocation);
+                leadAmount -= 1;
+            }
+        }
+
+        if (mineLocations.size() == 0) {
+            if (seenLead.size() > 0) {
+                int x = seenLead.get(0);
+                moveToLocation(intToLocation(x));
             } else {
-                for (Direction dir : directions) {
-                    if (rc.canMove(dir)) {
-                        rc.move(dir);
+                if (rc.isMovementReady()) {
+                    MapLocation moveLocation = rc.getLocation().add(minerDirection);
+                    if (rc.onTheMap(moveLocation) == false) {
+                        minerDirection = rebound(minerDirection);
                     }
+                    moveInDirection(minerDirection);
                 }
             }
         }

@@ -39,8 +39,6 @@ public strictfp class RobotPlayer {
         Direction.NORTHWEST,
     };
 
-    static Direction minerDirection;
-
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * It is like the main function for your robot. If this method returns, the robot dies!
@@ -145,6 +143,10 @@ public strictfp class RobotPlayer {
 
     static void moveToLocation(MapLocation loc) throws GameActionException {
         Direction dir = rc.getLocation().directionTo(loc);
+        moveInDirection(dir);
+    }
+    
+    static void moveInDirection(Direction dir) throws GameActionException {
         Direction leftDirection = dir;
         Direction rightDirection = dir;
         for (int i = 0; i < 5; i++) {
@@ -156,6 +158,87 @@ public strictfp class RobotPlayer {
             }
             leftDirection = leftDirection.rotateLeft();
             rightDirection = rightDirection.rotateRight();
+        }
+    }
+
+    static Direction getSpawnDirection() throws GameActionException {
+        Team myTeam = rc.getTeam();
+        RobotInfo[] robots = rc.senseNearbyRobots(2, myTeam);
+        Direction dir = null;
+        for (RobotInfo robot : robots) {
+            if (robot.type == RobotType.ARCHON) {
+                MapLocation archonLocation = robot.getLocation();
+                dir = archonLocation.directionTo(rc.getLocation());
+            }
+        }
+        return dir;
+    }
+
+    static Direction rebound(Direction dir) throws GameActionException {
+        Direction[] cardinalDirections = Direction.cardinalDirections();
+        boolean isCardinalDirection = false;
+        for (Direction d : cardinalDirections) {
+            if (dir == d) {
+                isCardinalDirection = true;
+            }
+        }
+        if (isCardinalDirection) {
+            dir = dir.opposite().rotateRight();
+        } else {
+            if (rc.onTheMap(rc.getLocation().add(dir.rotateRight().rotateRight()))) {
+                dir = dir.rotateRight().rotateRight();
+            } else if (rc.onTheMap(rc.getLocation().add(dir.rotateLeft().rotateLeft()))) {
+                dir = dir.rotateLeft().rotateLeft();
+            } else {
+                dir = dir.opposite();
+            }
+        }
+        return dir;
+    }
+
+    static void senseEnemyArchon() throws GameActionException {
+        int radius = rc.getType().actionRadiusSquared;
+        Team opponent = rc.getTeam().opponent();
+        RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+        for (RobotInfo robot : enemies) {
+            if (robot.getType() == RobotType.ARCHON) {
+                int n = locationToInt(robot.getLocation());
+                boolean inArray = false;
+                int start = -1;
+                for (int x = 0; x < 4; x ++) {
+                    int value = rc.readSharedArray(x);
+                    if (value == n * 2 + 1) {
+                        inArray = true;
+                        break;
+                    }
+                    if (value == 0) {
+                        start = x;
+                        break;
+                    }
+                }
+                if (inArray == false && start >= 0) {
+                    rc.writeSharedArray(start, n * 2 + 1);
+                }
+            }
+        }
+    }
+
+    static MapLocation getEnemyArchon(int i) throws GameActionException {
+        MapLocation enemyArchonLocation = null;
+        if (rc.readSharedArray(i) % 2 == 1) {
+            int n = rc.readSharedArray(0);
+            enemyArchonLocation = intToLocation((n - 1)/2);
+        }
+        return enemyArchonLocation;
+    }
+
+    static void removeEnemyArchon(MapLocation loc) throws GameActionException {
+        for (int x = 0; x < 4; x ++) {
+            int value = rc.readSharedArray(x);
+            if ((value - 1) / 2 == locationToInt(loc)) {
+                rc.writeSharedArray(x, 0);
+                break;
+            }
         }
     }
 }
