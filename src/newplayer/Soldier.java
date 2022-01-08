@@ -4,9 +4,10 @@ import battlecode.common.*;
 public class Soldier extends RobotPlayer{
 
     static MapLocation enemyArchonLocation = null;
+    static Direction soldierDirection;
 
     Soldier() throws GameActionException {
-
+        soldierDirection = getSpawnDirection();
     }
     /**
      * Run a single turn for a Soldier.
@@ -14,10 +15,15 @@ public class Soldier extends RobotPlayer{
      */
     void runSoldier() throws GameActionException {
 
-        if (rc.readSharedArray(1) == 1) {
-            int n = rc.readSharedArray(0);
-            enemyArchonLocation = intToLocation(n);
+        senseEnemyArchon();
+
+        for (int i = 0; i < 4; i++) {
+            enemyArchonLocation = getEnemyArchon(i);
+            if (enemyArchonLocation != null) {
+                break;
+            }
         }
+
 
         // Try to attack someone
         int radius = rc.getType().actionRadiusSquared;
@@ -30,9 +36,25 @@ public class Soldier extends RobotPlayer{
             }
         }
 
-        // Also try to move randomly.
         if (enemyArchonLocation != null) {
-            moveToLocation(enemyArchonLocation);
+            if (rc.canSenseLocation(enemyArchonLocation)) {
+                RobotInfo robot = rc.senseRobotAtLocation(enemyArchonLocation);
+                if (robot != null && robot.getType() != RobotType.ARCHON) {
+                    removeEnemyArchon(enemyArchonLocation);
+                }
+            }
+        }
+
+        // Also try to move randomly.
+        if (rc.isMovementReady()) {
+            if (enemyArchonLocation != null) {
+                moveToLocation(enemyArchonLocation);
+            } else {
+                if (rc.onTheMap(rc.getLocation().add(soldierDirection)) == false) {
+                    soldierDirection = rebound(soldierDirection);
+                }
+                moveInDirection(soldierDirection);
+            }
         }
     }
 }

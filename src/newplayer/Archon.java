@@ -3,7 +3,8 @@ import battlecode.common.*;
 
 public class Archon extends RobotPlayer {
 
-    static RobotType buildType = RobotType.MINER;
+    static RobotType buildType;
+    static int robotsBuilt = 0;
 
     Archon() throws GameActionException {
 
@@ -13,23 +14,17 @@ public class Archon extends RobotPlayer {
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     void runArchon() throws GameActionException {
-        if (turnCount % 50 == 0) {
-            buildType = RobotType.BUILDER;
+
+        Direction dir = directions[rng.nextInt(directions.length)];
+        if (robotsBuilt % 4 == 0) {
+            buildType = RobotType.SOLDIER;
         } else {
             buildType = RobotType.MINER;
         }
-        if (turnCount > 500) {
-            if (turnCount % 50 == 0) {
-                buildType = RobotType.SAGE;
-            } else {
-                buildType = RobotType.SOLDIER;
-            }
-        }
-        // Pick a direction to build in.
-        Direction dir = directions[rng.nextInt(directions.length)];
         // Let's try to build a miner.
         if (rc.canBuildRobot(buildType, dir)) {
             rc.buildRobot(buildType, dir);
+            robotsBuilt++;
         }
         /*
         if (rng.nextBoolean()) {
