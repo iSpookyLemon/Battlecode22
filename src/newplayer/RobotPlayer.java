@@ -2,6 +2,8 @@
 package newplayer;
 
 import battlecode.common.*;
+
+import java.security.cert.X509CertSelector;
 import java.util.Random;
 
 /**
@@ -205,7 +207,7 @@ public strictfp class RobotPlayer {
                 int n = locationToInt(robot.getLocation());
                 boolean inArray = false;
                 int start = -1;
-                for (int x = 0; x < 4; x ++) {
+                for (int x = 3; x > -1; x--) {
                     int value = rc.readSharedArray(x);
                     if (value == n * 2 + 1) {
                         inArray = true;
@@ -213,7 +215,6 @@ public strictfp class RobotPlayer {
                     }
                     if (value == 0) {
                         start = x;
-                        break;
                     }
                 }
                 if (inArray == false && start >= 0) {
@@ -226,14 +227,14 @@ public strictfp class RobotPlayer {
     static MapLocation getEnemyArchon(int i) throws GameActionException {
         MapLocation enemyArchonLocation = null;
         if (rc.readSharedArray(i) % 2 == 1) {
-            int n = rc.readSharedArray(0);
+            int n = rc.readSharedArray(i);
             enemyArchonLocation = intToLocation((n - 1)/2);
         }
         return enemyArchonLocation;
     }
 
     static void removeEnemyArchon(MapLocation loc) throws GameActionException {
-        for (int x = 0; x < 4; x ++) {
+        for (int x = 0; x < 4; x++) {
             int value = rc.readSharedArray(x);
             if ((value - 1) / 2 == locationToInt(loc)) {
                 rc.writeSharedArray(x, 0);
