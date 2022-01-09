@@ -168,32 +168,30 @@ public strictfp class RobotPlayer {
     }
 
     static void leastRubbleMove(Direction dir) throws GameActionException {
-        Direction leftDir = dir.rotateLeft();
-        Direction rightDir = dir.rotateRight();
+        Direction leftDirection = dir;
+        Direction rightDirection = dir;
         Direction bestDirection = null;
         int rubbleAmount = 101;
         MapLocation me = rc.getLocation();
-        if (rc.canMove(dir)) {
-            if (rc.canSenseLocation(me.add(dir))) {
-                if (rc.senseRubble(me.add(dir)) < rubbleAmount) {
-                    bestDirection = dir;
-                    rubbleAmount = rc.senseRubble(me.add(dir));
+        for (int i = 0; i < 2; i++) {
+            if (rc.canMove(leftDirection)) {
+                if (rc.canSenseLocation(me.add(leftDirection))) {
+                    if (rc.senseRubble(me.add(leftDirection)) < rubbleAmount) {
+                        bestDirection = leftDirection;
+                        rubbleAmount = rc.senseRubble(me.add(leftDirection));
+                    }
                 }
             }
-        } else if (rc.canMove(leftDir)) {
-            if (rc.canSenseLocation(me.add(leftDir))) {
-                if (rc.senseRubble(me.add(leftDir)) < rubbleAmount) {
-                    bestDirection = leftDir;
-                    rubbleAmount = rc.senseRubble(me.add(leftDir));
+            if (rc.canMove(rightDirection)) {
+                if (rc.canSenseLocation(me.add(rightDirection))) {
+                    if (rc.senseRubble(me.add(rightDirection)) < rubbleAmount) {
+                        bestDirection = rightDirection;
+                        rubbleAmount = rc.senseRubble(me.add(rightDirection));
+                    }
                 }
             }
-        } else if (rc.canMove(rightDir)) {
-            if (rc.canSenseLocation(me.add(rightDir))) {
-                if (rc.senseRubble(me.add(rightDir)) < rubbleAmount) {
-                    bestDirection = rightDir;
-                    rubbleAmount = rc.senseRubble(me.add(rightDir));
-                }
-            }
+            leftDirection = leftDirection.rotateLeft();
+            rightDirection = rightDirection.rotateRight();
         }
         if (bestDirection != null) {
             rc.move(bestDirection);

@@ -27,10 +27,23 @@ public class Archon extends RobotPlayer {
             soldierDelay = 1;
         }
         */
-        if (robotsBuilt % 2 == 0) {
+        
+        RobotInfo[] robots = rc.senseNearbyRobots(9, rc.getTeam());
+        int miners = 0;
+        for (RobotInfo robot : robots) {
+            if (robot.type == RobotType.MINER) {
+                miners++;
+            }
+        }
+
+        if (miners > 5) {
             buildType = RobotType.SOLDIER;
         } else {
-            buildType = RobotType.MINER;
+            if (robotsBuilt % 2 == 0) {
+                buildType = RobotType.SOLDIER;
+            } else {
+                buildType = RobotType.MINER;
+            }
         }
 
         if (rc.isActionReady()) {
