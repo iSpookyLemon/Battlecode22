@@ -7,13 +7,15 @@ public class Sage extends RobotPlayer {
     static Direction sageDirection;
 
     Sage() throws GameActionException {
-
+    	sageDirection = getSpawnDirection();
     }
     void runSage() throws GameActionException {
-
-        if (rc.readSharedArray(1) == 1) {
-            int n = rc.readSharedArray(0);
-            enemyArchonLocation = intToLocation(n);
+    	
+    	for (int i = 0; i < 4; i++) {
+            enemyArchonLocation = getEnemyArchon(i);
+            if (enemyArchonLocation != null) {
+                break;
+            }
         }
         
         if (rc.isMovementReady()) {

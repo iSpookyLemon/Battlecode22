@@ -233,7 +233,7 @@ public strictfp class RobotPlayer {
     }
 
     static void senseEnemyArchon() throws GameActionException {
-        int radius = rc.getType().actionRadiusSquared;
+        int radius = rc.getType().visionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
         for (RobotInfo robot : enemies) {
