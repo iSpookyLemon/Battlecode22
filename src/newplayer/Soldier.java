@@ -5,9 +5,11 @@ public class Soldier extends RobotPlayer{
 
     static MapLocation enemyArchonLocation = null;
     static Direction soldierDirection;
+    static MapLocation parentLocation;
 
     Soldier() throws GameActionException {
         soldierDirection = getSpawnDirection();
+        parentLocation = getParentArchonLocation();
     }
     /**
      * Run a single turn for a Soldier.
@@ -30,8 +32,6 @@ public class Soldier extends RobotPlayer{
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-<<<<<<< Updated upstream
-=======
 
         for (RobotInfo robot : enemies) {
             MapLocation enemyLocation = robot.getLocation();
@@ -44,7 +44,6 @@ public class Soldier extends RobotPlayer{
             }
         }
 
->>>>>>> Stashed changes
         if (enemies.length > 0) {
             MapLocation toAttack = enemies[0].location;
             if (rc.canAttack(toAttack)) {
