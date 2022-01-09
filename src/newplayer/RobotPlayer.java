@@ -3,7 +3,6 @@ package newplayer;
 
 import battlecode.common.*;
 
-import java.security.cert.X509CertSelector;
 import java.util.Random;
 
 /**
