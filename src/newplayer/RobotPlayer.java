@@ -2,6 +2,7 @@
 package newplayer;
 
 import battlecode.common.*;
+
 import java.util.Random;
 
 /**
@@ -143,10 +144,13 @@ public strictfp class RobotPlayer {
 
     static void moveToLocation(MapLocation loc) throws GameActionException {
         Direction dir = rc.getLocation().directionTo(loc);
-        moveInDirection(dir);
+        //moveInDirection(dir);
+        leastRubbleMove(dir);
     }
     
     static void moveInDirection(Direction dir) throws GameActionException {
+        leastRubbleMove(dir);
+        /*
         Direction leftDirection = dir;
         Direction rightDirection = dir;
         for (int i = 0; i < 5; i++) {
@@ -158,6 +162,38 @@ public strictfp class RobotPlayer {
             }
             leftDirection = leftDirection.rotateLeft();
             rightDirection = rightDirection.rotateRight();
+        }
+        */
+    }
+
+    static void leastRubbleMove(Direction dir) throws GameActionException {
+        Direction leftDirection = dir;
+        Direction rightDirection = dir;
+        Direction bestDirection = null;
+        int rubbleAmount = 101;
+        MapLocation me = rc.getLocation();
+        for (int i = 0; i < 2; i++) {
+            if (rc.canMove(leftDirection)) {
+                if (rc.canSenseLocation(me.add(leftDirection))) {
+                    if (rc.senseRubble(me.add(leftDirection)) < rubbleAmount) {
+                        bestDirection = leftDirection;
+                        rubbleAmount = rc.senseRubble(me.add(leftDirection));
+                    }
+                }
+            }
+            if (rc.canMove(rightDirection)) {
+                if (rc.canSenseLocation(me.add(rightDirection))) {
+                    if (rc.senseRubble(me.add(rightDirection)) < rubbleAmount) {
+                        bestDirection = rightDirection;
+                        rubbleAmount = rc.senseRubble(me.add(rightDirection));
+                    }
+                }
+            }
+            leftDirection = leftDirection.rotateLeft();
+            rightDirection = rightDirection.rotateRight();
+        }
+        if (bestDirection != null) {
+            rc.move(bestDirection);
         }
     }
 
@@ -205,7 +241,7 @@ public strictfp class RobotPlayer {
                 int n = locationToInt(robot.getLocation());
                 boolean inArray = false;
                 int start = -1;
-                for (int x = 0; x < 4; x ++) {
+                for (int x = 3; x > -1; x--) {
                     int value = rc.readSharedArray(x);
                     if (value == n * 2 + 1) {
                         inArray = true;
@@ -213,7 +249,6 @@ public strictfp class RobotPlayer {
                     }
                     if (value == 0) {
                         start = x;
-                        break;
                     }
                 }
                 if (inArray == false && start >= 0) {
@@ -226,14 +261,14 @@ public strictfp class RobotPlayer {
     static MapLocation getEnemyArchon(int i) throws GameActionException {
         MapLocation enemyArchonLocation = null;
         if (rc.readSharedArray(i) % 2 == 1) {
-            int n = rc.readSharedArray(0);
+            int n = rc.readSharedArray(i);
             enemyArchonLocation = intToLocation((n - 1)/2);
         }
         return enemyArchonLocation;
     }
 
     static void removeEnemyArchon(MapLocation loc) throws GameActionException {
-        for (int x = 0; x < 4; x ++) {
+        for (int x = 0; x < 4; x++) {
             int value = rc.readSharedArray(x);
             if ((value - 1) / 2 == locationToInt(loc)) {
                 rc.writeSharedArray(x, 0);

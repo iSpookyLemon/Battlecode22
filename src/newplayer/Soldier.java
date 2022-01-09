@@ -16,7 +16,6 @@ public class Soldier extends RobotPlayer{
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     void runSoldier() throws GameActionException {
-
         senseEnemyArchon();
 
         for (int i = 0; i < 4; i++) {
@@ -31,13 +30,18 @@ public class Soldier extends RobotPlayer{
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-        
+
         for (RobotInfo robot : enemies) {
+            MapLocation enemyLocation = robot.getLocation();
             if (robot.type == RobotType.SOLDIER) {
-            	moveInDirection(rc.getLocation().directionTo(parentLocation));
+                if (rc.canAttack(enemyLocation)) {
+                    rc.attack(enemyLocation);
+                }
+                //moveInDirection(rc.getLocation().directionTo(parentLocation));
+            	moveInDirection(enemyLocation.directionTo(rc.getLocation()));
             }
         }
-        
+
         if (enemies.length > 0) {
             MapLocation toAttack = enemies[0].location;
             if (rc.canAttack(toAttack)) {
