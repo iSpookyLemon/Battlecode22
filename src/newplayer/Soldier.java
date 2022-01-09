@@ -16,8 +16,6 @@ public class Soldier extends RobotPlayer{
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     void runSoldier() throws GameActionException {
-
-        rc.setIndicatorString(soldierDirection.toString());
         senseEnemyArchon();
 
         for (int i = 0; i < 4; i++) {
