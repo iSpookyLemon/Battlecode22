@@ -6,6 +6,7 @@ public class Archon extends RobotPlayer {
     static RobotType buildType;
     static int robotsBuilt = 0;
     static int soldierDelay = 4;
+    static int i = 0;
 
     Archon() throws GameActionException {
 
@@ -15,7 +16,7 @@ public class Archon extends RobotPlayer {
      * This code is wrapped inside the infinite loop in run(), so it is called once per turn.
      */
     void runArchon() throws GameActionException {
-
+        /*
         if (rc.getTeamLeadAmount(rc.getTeam()) < 250) {
             soldierDelay = 4;
         } else if (rc.getTeamLeadAmount(rc.getTeam()) < 500) {
@@ -25,32 +26,32 @@ public class Archon extends RobotPlayer {
         } else {
             soldierDelay = 1;
         }
-
-        Direction dir = directions[rng.nextInt(directions.length)];
-        if (robotsBuilt % soldierDelay == 0) {
+        */
+        if (robotsBuilt % 2 == 0) {
             buildType = RobotType.SOLDIER;
         } else {
             buildType = RobotType.MINER;
         }
-        // Let's try to build a miner.
-        if (rc.canBuildRobot(buildType, dir)) {
-            rc.buildRobot(buildType, dir);
-            robotsBuilt++;
-        }
-        /*
-        if (rng.nextBoolean()) {
-            // Let's try to build a miner.
-            rc.setIndicatorString("Trying to build a miner");
-            if (rc.canBuildRobot(RobotType.MINER, dir)) {
-                rc.buildRobot(RobotType.MINER, dir);
+
+        if (rc.isActionReady()) {
+            for (int x = 0; x < 8; x++) {
+                Direction dir = directions[i];
+                if (rc.canBuildRobot(buildType, dir)) {
+                    rc.buildRobot(buildType, dir);
+                    robotsBuilt++;
+                    i = increaseI(i);
+                    break;
+                }
+                i = increaseI(i);
             }
+        }
+    }
+
+    int increaseI(int i) {
+        if (i == 7) {
+            return 0;
         } else {
-            // Let's try to build a soldier.
-            rc.setIndicatorString("Trying to build a soldier");
-            if (rc.canBuildRobot(RobotType.SOLDIER, dir)) {
-                rc.buildRobot(RobotType.SOLDIER, dir);
-            }
+            return i + 1;
         }
-        */
     }
 }
