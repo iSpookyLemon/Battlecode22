@@ -27,6 +27,7 @@ public class Soldier extends RobotPlayer{
 
 
         // Try to attack someone
+        
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
@@ -69,5 +70,6 @@ public class Soldier extends RobotPlayer{
                 moveInDirection(soldierDirection);
             }
         }
+       
     }
 }

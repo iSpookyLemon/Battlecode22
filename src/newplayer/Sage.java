@@ -19,7 +19,7 @@ public class Sage extends RobotPlayer {
         if (rc.isMovementReady()) {
             if (enemyArchonLocation != null) {
                 moveToLocation(enemyArchonLocation);
-            } else {
+        	} else {
                 if (rc.onTheMap(rc.getLocation().add(sageDirection)) == false) {
                     sageDirection = rebound(sageDirection);
                 }
