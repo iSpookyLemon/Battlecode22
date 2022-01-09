@@ -26,6 +26,16 @@ public class Archon extends RobotPlayer {
         } else {
             soldierDelay = 1;
         }
+        
+        if (rc.getTeamLeadAmount(rc.getTeam()) > 1000) {
+            minerDelay = 4;
+        } else if (rc.getTeamLeadAmount(rc.getTeam()) > 500) {
+            minerDelay = 3;
+        } else if (rc.getTeamLeadAmount(rc.getTeam()) > 250) {
+            minerDelay = 2;
+        } else {
+            minerDelay = 1;
+        }
         */
         
         RobotInfo[] robots = rc.senseNearbyRobots(9, rc.getTeam());
@@ -44,6 +54,14 @@ public class Archon extends RobotPlayer {
             } else {
                 buildType = RobotType.MINER;
             }
+        }
+      
+        if (rc.getTeamLeadAmount(rc.getTeam()) > 200) {
+          if (robotsBuilt % 2 == 0){
+            buildType = RobotType.BUILDER;
+          } else {
+        	  buildType = RobotType.SAGE;
+          }
         }
 
         if (rc.isActionReady()) {
