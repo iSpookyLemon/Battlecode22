@@ -19,22 +19,20 @@ public class Miner extends RobotPlayer {
         senseEnemyArchon();
 
         MapLocation me = rc.getLocation();
-        ArrayList<Integer> seenLead = new ArrayList<Integer>();
-        ArrayList<Integer> mineLocations = new ArrayList<Integer>();
+        ArrayList<MapLocation> seenLead = new ArrayList<MapLocation>();
+        ArrayList<MapLocation> mineLocations = new ArrayList<MapLocation>();
 
         for (MapLocation loc : rc.getAllLocationsWithinRadiusSquared(me, rc.getType().visionRadiusSquared)) {
-            int n = locationToInt(loc);
             int leadAmount = rc.senseLead(loc);
             if (leadAmount > 1) {
                 if (me.distanceSquaredTo(loc) <= 2) {
-                    mineLocations.add(n);
+                    mineLocations.add(loc);
                 }
-                seenLead.add(n);
+                seenLead.add(loc);
             }
         }
 
-        for (int n : mineLocations) {
-            MapLocation mineLocation = intToLocation(n);
+        for (MapLocation mineLocation : mineLocations) {
             while (rc.canMineGold(mineLocation)) {
                 rc.mineGold(mineLocation);
             }
@@ -47,8 +45,7 @@ public class Miner extends RobotPlayer {
 
         if (mineLocations.size() == 0) {
             if (seenLead.size() > 0) {
-                int x = seenLead.get(0);
-                moveToLocation(intToLocation(x));
+                moveToLocation(seenLead.get(0));
             } else {
                 if (rc.isMovementReady()) {
                     MapLocation moveLocation = rc.getLocation().add(minerDirection);

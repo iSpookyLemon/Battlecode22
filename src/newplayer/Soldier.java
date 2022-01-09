@@ -15,6 +15,7 @@ public class Soldier extends RobotPlayer{
      */
     void runSoldier() throws GameActionException {
 
+        rc.setIndicatorString(soldierDirection.toString());
         senseEnemyArchon();
 
         for (int i = 0; i < 4; i++) {
@@ -29,6 +30,21 @@ public class Soldier extends RobotPlayer{
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+<<<<<<< Updated upstream
+=======
+
+        for (RobotInfo robot : enemies) {
+            MapLocation enemyLocation = robot.getLocation();
+            if (robot.type == RobotType.SOLDIER) {
+                if (rc.canAttack(enemyLocation)) {
+                    rc.attack(enemyLocation);
+                }
+                //moveInDirection(rc.getLocation().directionTo(parentLocation));
+            	moveInDirection(enemyLocation.directionTo(rc.getLocation()));
+            }
+        }
+
+>>>>>>> Stashed changes
         if (enemies.length > 0) {
             MapLocation toAttack = enemies[0].location;
             if (rc.canAttack(toAttack)) {
