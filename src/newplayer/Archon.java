@@ -59,9 +59,9 @@ public class Archon extends RobotPlayer {
         if (rc.getTeamLeadAmount(rc.getTeam()) > 200) {
           if (robotsBuilt % 2 == 0){
             buildType = RobotType.BUILDER;
-          } else {
-        	  buildType = RobotType.SAGE;
-          }
+          } //else {
+        	//buildType = RobotType.SAGE;
+          //}
         }
 
         if (rc.isActionReady()) {
