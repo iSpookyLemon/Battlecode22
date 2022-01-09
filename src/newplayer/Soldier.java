@@ -5,9 +5,11 @@ public class Soldier extends RobotPlayer{
 
     static MapLocation enemyArchonLocation = null;
     static Direction soldierDirection;
+    static MapLocation parentLocation;
 
     Soldier() throws GameActionException {
         soldierDirection = getSpawnDirection();
+        parentLocation = getParentArchonLocation();
     }
     /**
      * Run a single turn for a Soldier.
@@ -29,6 +31,13 @@ public class Soldier extends RobotPlayer{
         int radius = rc.getType().actionRadiusSquared;
         Team opponent = rc.getTeam().opponent();
         RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
+        
+        for (RobotInfo robot : enemies) {
+            if (robot.type == RobotType.SOLDIER) {
+            	moveInDirection(rc.getLocation().directionTo(parentLocation));
+            }
+        }
+        
         if (enemies.length > 0) {
             MapLocation toAttack = enemies[0].location;
             if (rc.canAttack(toAttack)) {
