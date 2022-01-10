@@ -62,7 +62,7 @@ public class Soldier extends RobotPlayer{
         // Also try to move randomly.
         if (rc.isMovementReady()) {
             if (enemyArchonLocation != null) {
-                moveToLocation(enemyArchonLocation);
+                moveToEnemyArchon(enemyArchonLocation);
             } else {
                 if (rc.onTheMap(rc.getLocation().add(soldierDirection)) == false) {
                     soldierDirection = rebound(soldierDirection);
@@ -71,5 +71,41 @@ public class Soldier extends RobotPlayer{
             }
         }
        
+    }
+
+    static void moveToEnemyArchon(MapLocation loc) throws GameActionException {
+        Direction dir = rc.getLocation().directionTo(loc);
+        Direction leftDirection = dir;
+        Direction rightDirection = dir;
+        Direction bestDirection = null;
+        int rubbleAmount = 101;
+        MapLocation me = rc.getLocation();
+        int n = 2;
+        if (rc.getLocation().distanceSquaredTo(enemyArchonLocation) < 36) {
+            n = 3;
+        }
+        for (int i = 0; i < n; i++) {
+            if (rc.canMove(leftDirection)) {
+                if (rc.canSenseLocation(me.add(leftDirection))) {
+                    if (rc.senseRubble(me.add(leftDirection)) < rubbleAmount) {
+                        bestDirection = leftDirection;
+                        rubbleAmount = rc.senseRubble(me.add(leftDirection));
+                    }
+                }
+            }
+            if (rc.canMove(rightDirection)) {
+                if (rc.canSenseLocation(me.add(rightDirection))) {
+                    if (rc.senseRubble(me.add(rightDirection)) < rubbleAmount) {
+                        bestDirection = rightDirection;
+                        rubbleAmount = rc.senseRubble(me.add(rightDirection));
+                    }
+                }
+            }
+            leftDirection = leftDirection.rotateLeft();
+            rightDirection = rightDirection.rotateRight();
+        }
+        if (bestDirection != null) {
+            rc.move(bestDirection);
+        }
     }
 }

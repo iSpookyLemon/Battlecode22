@@ -193,7 +193,9 @@ public strictfp class RobotPlayer {
             rightDirection = rightDirection.rotateRight();
         }
         if (bestDirection != null) {
-            rc.move(bestDirection);
+            if (rc.canMove(bestDirection)) {
+                rc.move(bestDirection);
+            }
         }
     }
 

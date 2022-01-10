@@ -46,22 +46,22 @@ public class Archon extends RobotPlayer {
             }
         }
 
-        if (miners > 5) { 
-            buildType = RobotType.SOLDIER;
+        if (robotsBuilt < 6) {
+            buildType = RobotType.MINER;
         } else {
-            if (robotsBuilt % 2 == 0) {
+            if (miners > 4) { 
                 buildType = RobotType.SOLDIER;
-           } else {
-                buildType = RobotType.MINER;
-           }
+            } else {
+                if (robotsBuilt % 2 == 0) {
+                    buildType = RobotType.SOLDIER;
+            } else {
+                    buildType = RobotType.MINER;
+            }
+            }
         }
-      
-        if (rc.getTeamLeadAmount(rc.getTeam()) > 200) {
-          if (robotsBuilt % 2 == 0){
-            buildType = RobotType.BUILDER;
-          } else {
-        	buildType = RobotType.SAGE;
-          }
+       
+        if (rc.getTeamLeadAmount(rc.getTeam()) > 400) {
+            buildType = RobotType.SOLDIER;
         }
 
         if (rc.isActionReady()) {
