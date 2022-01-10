@@ -6,9 +6,11 @@ public class Miner extends RobotPlayer {
 
     static MapLocation mineLocation;
     static Direction minerDirection;
+    static MapLocation parentLocation;
 
     Miner() throws GameActionException {
         minerDirection = getSpawnDirection();
+        parentLocation = getParentArchonLocation();
     }
     /**
      * Run a single turn for a Miner.
@@ -43,16 +45,34 @@ public class Miner extends RobotPlayer {
             }
         }
 
-        if (mineLocations.size() == 0) {
-            if (seenLead.size() > 0) {
-                moveToLocation(seenLead.get(0));
-            } else {
-                if (rc.isMovementReady()) {
-                    MapLocation moveLocation = rc.getLocation().add(minerDirection);
-                    if (rc.onTheMap(moveLocation) == false) {
-                        minerDirection = rebound(minerDirection);
+        if (rc.getLocation().distanceSquaredTo(parentLocation) < 16) {
+            if (rc.isMovementReady()) {
+                MapLocation moveLocation = rc.getLocation().add(minerDirection);
+                if (rc.onTheMap(moveLocation) == false) {
+                    minerDirection = rebound(minerDirection);
+                }
+                moveInDirection(minerDirection);
+            }
+        } else {
+            if (mineLocations.size() == 0) {
+                if (seenLead.size() > 0) {
+                    MapLocation closest = null;
+                    int best = 10000;
+                    for (MapLocation loc : seenLead) {
+                        if (me.distanceSquaredTo(loc) < best) {
+                            best = me.distanceSquaredTo(loc);
+                            closest = loc;
+                        }
                     }
-                    moveInDirection(minerDirection);
+                    moveToLocation(closest);
+                } else {
+                    if (rc.isMovementReady()) {
+                        MapLocation moveLocation = rc.getLocation().add(minerDirection);
+                        if (rc.onTheMap(moveLocation) == false) {
+                            minerDirection = rebound(minerDirection);
+                        }
+                        moveInDirection(minerDirection);
+                    }
                 }
             }
         }
