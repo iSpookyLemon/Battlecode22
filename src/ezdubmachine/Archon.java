@@ -37,8 +37,25 @@ public class Archon extends RobotPlayer {
             minerDelay = 1;
         }
         */
+        MapLocation me = rc.getLocation();
+        Direction leadDirection = null;
+        int bestD = 10000;
+        int bestL = 0;
+
+        for (MapLocation loc : rc.senseNearbyLocationsWithLead()) {
+            int leadAmount = rc.senseLead(loc);
+            int distance = Math.max(Math.abs(me.x - loc.x), Math.abs(me.y - loc.y));
+            //int distance = me.distanceSquaredTo(loc);
+            if (leadAmount > 1) {
+                if (distance < bestD || (distance == bestD && leadAmount > bestL)) {
+                    bestD = distance;
+                    bestL = leadAmount;
+                    leadDirection = me.directionTo(loc);
+                }
+            }
+        }
         
-        RobotInfo[] robots = rc.senseNearbyRobots(9, rc.getTeam());
+        RobotInfo[] robots = rc.senseNearbyRobots(5, rc.getTeam());
         int miners = 0;
         for (RobotInfo robot : robots) {
             if (robot.type == RobotType.MINER) {
@@ -65,6 +82,14 @@ public class Archon extends RobotPlayer {
         }
 
         if (rc.isActionReady()) {
+            if (leadDirection != null) {
+                if (buildType == RobotType.MINER) {
+                    if (rc.canBuildRobot(buildType, leadDirection)) {
+                        rc.buildRobot(buildType, leadDirection);
+                        robotsBuilt++;
+                    }
+                }
+            }
             for (int x = 0; x < 8; x++) {
                 Direction dir = directions[i];
                 if (rc.canBuildRobot(buildType, dir)) {
