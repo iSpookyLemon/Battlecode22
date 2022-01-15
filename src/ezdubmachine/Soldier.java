@@ -1,11 +1,15 @@
 package ezdubmachine;
 import battlecode.common.*;
+import java.util.ArrayList;
+import java.util.Vector;
 
 public class Soldier extends RobotPlayer{
 
     static MapLocation enemyArchonLocation = null;
     static Direction soldierDirection;
     static MapLocation parentLocation;
+    static ArrayList<MapLocation> enemyLocations = new ArrayList<MapLocation>();
+    static ArrayList<MapLocation> friendLocations = new ArrayList<MapLocation>();
 
     Soldier() throws GameActionException {
         soldierDirection = getSpawnDirection();
@@ -17,6 +21,7 @@ public class Soldier extends RobotPlayer{
      */
     void runSoldier() throws GameActionException {
         senseEnemyArchon();
+        MapLocation me = rc.getLocation();
 
         for (int i = 0; i < 4; i++) {
             enemyArchonLocation = getEnemyArchon(i);
@@ -26,29 +31,75 @@ public class Soldier extends RobotPlayer{
         }
 
 
-        // Try to attack someone
-        
-        int radius = rc.getType().actionRadiusSquared;
-        Team opponent = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(radius, opponent);
-
+        // Sense for enemy soldiers
+        RobotInfo[] enemies = rc.senseNearbyRobots(rc.getType().actionRadiusSquared, rc.getTeam().opponent());
+        enemyLocations.clear();
         for (RobotInfo robot : enemies) {
-            MapLocation enemyLocation = robot.getLocation();
             if (robot.type == RobotType.SOLDIER) {
-                if (rc.canAttack(enemyLocation)) {
-                    rc.attack(enemyLocation);
-                }
-                //moveInDirection(rc.getLocation().directionTo(parentLocation));
-            	moveInDirection(enemyLocation.directionTo(rc.getLocation()));
+                MapLocation enemyLocation = robot.getLocation();
+                enemyLocations.add(enemyLocation);
             }
         }
 
-        if (enemies.length > 0) {
-            MapLocation toAttack = enemies[0].location;
-            if (rc.canAttack(toAttack)) {
-                rc.attack(toAttack);
+        //ATTACK
+        if (rc.isActionReady()) {
+            if (enemyLocations.size() > 0) {
+                if (rc.canAttack(enemyLocations.get(0))) {
+                    rc.attack(enemyLocations.get(0));
+                }
+            } else {
+                if (enemies.length > 0) {
+                    MapLocation toAttack = enemies[0].location;
+                    if (rc.canAttack(toAttack)) {
+                        rc.attack(toAttack);
+                    }
+                }
             }
         }
+        
+        // If there are enemy soldiers
+        if (rc.isMovementReady()) {
+            // Move away from enemy soldiers
+            if (enemyLocations.size() > 0) {
+                Vector<Vector<Integer>> vectors = locationToVector(enemyLocations);
+                Vector<Integer> sumVector = vectorAddition(vectors);
+                MapLocation loc = new MapLocation(me.x + sumVector.get(0), me.y + sumVector.get(1));
+                Direction dir = me.directionTo(loc);
+                soldierDirection = dir.opposite();
+                moveInDirection(dir);
+                //moveInDirection(enemyLocations.get(0).directionTo(me));
+            //If there is an enemy archon to go to
+            } else if (enemyArchonLocation != null) {
+                moveToEnemyArchon(enemyArchonLocation);
+            } else {
+                //Sense for team robots
+                RobotInfo[] robots = rc.senseNearbyRobots(16, rc.getTeam());
+                friendLocations.clear();
+                for (RobotInfo robot : robots) {
+                    if (robot.type == RobotType.SOLDIER) {
+                        MapLocation friendLocation = robot.getLocation();
+                        friendLocations.add(friendLocation);
+                    }
+                }
+                /*
+                //If there are teammates
+                if (friendLocations.size() > 0) {
+                    Vector<Vector<Integer>> vectors = locationToVector(friendLocations);
+                    Vector<Integer> sumVector = vectorAddition(vectors);
+                    MapLocation loc = new MapLocation(me.x + sumVector.get(0), me.y + sumVector.get(1));
+                    Direction dir = me.directionTo(loc);
+                    soldierDirection = dir;
+                    moveInDirection(dir);
+                } else {*/
+                    //Move in direction
+                    if (rc.onTheMap(rc.getLocation().add(soldierDirection)) == false) {
+                        soldierDirection = rebound(soldierDirection);
+                    }
+                    moveInDirection(soldierDirection);
+                //}
+            }
+        }
+
 
         if (enemyArchonLocation != null) {
             if (rc.canSenseLocation(enemyArchonLocation)) {
@@ -58,19 +109,6 @@ public class Soldier extends RobotPlayer{
                 }
             }
         }
-
-        // Also try to move randomly.
-        if (rc.isMovementReady()) {
-            if (enemyArchonLocation != null) {
-                moveToEnemyArchon(enemyArchonLocation);
-            } else {
-                if (rc.onTheMap(rc.getLocation().add(soldierDirection)) == false) {
-                    soldierDirection = rebound(soldierDirection);
-                }
-                moveInDirection(soldierDirection);
-            }
-        }
-       
     }
 
     static void moveToEnemyArchon(MapLocation loc) throws GameActionException {

@@ -4,6 +4,9 @@ package ezdubmachine;
 import battlecode.common.*;
 
 import java.util.Random;
+import java.util.Vector;
+import java.util.ArrayList;
+import javafx.util.Pair;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.
@@ -74,7 +77,7 @@ public strictfp class RobotPlayer {
         }
 
         // You can also use indicators to save debug notes in replays.
-        rc.setIndicatorString("Hello world!");
+        //rc.setIndicatorString("Hello world!");
 
         while (true) {
             // This code runs during the entire lifespan of the robot, which is why it is in an infinite
@@ -132,6 +135,16 @@ public strictfp class RobotPlayer {
             }
         }
         return archonLocation;
+    }
+
+    static Direction getSpawnDirection() throws GameActionException {
+        Direction dir = null;
+        MapLocation archonLocation = getParentArchonLocation();
+        if (archonLocation == null) {
+            archonLocation = rc.getLocation();
+        }
+        dir = archonLocation.directionTo(rc.getLocation());
+        return dir;
     }
 
     static int locationToInt(MapLocation loc) {
@@ -199,19 +212,6 @@ public strictfp class RobotPlayer {
         }
     }
 
-    static Direction getSpawnDirection() throws GameActionException {
-        Team myTeam = rc.getTeam();
-        RobotInfo[] robots = rc.senseNearbyRobots(2, myTeam);
-        Direction dir = null;
-        for (RobotInfo robot : robots) {
-            if (robot.type == RobotType.ARCHON) {
-                MapLocation archonLocation = robot.getLocation();
-                dir = archonLocation.directionTo(rc.getLocation());
-            }
-        }
-        return dir;
-    }
-
     static Direction rebound(Direction dir) throws GameActionException {
         Direction[] cardinalDirections = Direction.cardinalDirections();
         boolean isCardinalDirection = false;
@@ -277,5 +277,34 @@ public strictfp class RobotPlayer {
                 break;
             }
         }
+    }
+
+    static Vector<Integer> vectorAddition(Vector<Vector<Integer>> vectors) {
+        int x_total = 0;
+        int y_total = 0;
+        for (Vector<Integer> vector : vectors) {
+            int x = vector.get(0);
+            int y = vector.get(1);
+            x_total += x;
+            y_total += y;
+        }
+        Vector<Integer> sumVector = new Vector<Integer>();
+        sumVector.add(x_total);
+        sumVector.add(y_total);
+        return sumVector;
+    }
+
+    static Vector<Vector<Integer>> locationToVector(ArrayList<MapLocation> locations) {
+        MapLocation me = rc.getLocation();
+        Vector<Vector<Integer>> vectors = new Vector<Vector<Integer>>();
+        for (MapLocation loc : locations) {
+            Vector<Integer> vector = new Vector<Integer>();
+            int deltaX = me.x - loc.x;
+            int deltaY = me.y - loc.y;
+            vector.add(deltaX);
+            vector.add(deltaY);
+            vectors.add(vector);
+        }
+        return vectors;
     }
 }
