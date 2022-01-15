@@ -6,7 +6,6 @@ import battlecode.common.*;
 import java.util.Random;
 import java.util.Vector;
 import java.util.ArrayList;
-import javafx.util.Pair;
 
 /**
  * RobotPlayer is the class that describes your main robot strategy.
